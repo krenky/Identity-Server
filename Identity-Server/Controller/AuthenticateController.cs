@@ -50,7 +50,7 @@ namespace Identity_Server.Controller
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return StatusCode(500, new { Status = "Error", Message = "User creation failes! Please check user details & try again." });
+                return StatusCode(500, new { Status = "Error", Message = $"User creation failes! {result.ToString()}" });
             return Ok(new { Status = "Success", Message = "User created successfully" });
         }
         /// <summary>
@@ -74,7 +74,7 @@ namespace Identity_Server.Controller
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return StatusCode(500, new { Status = "Error", Message = "User creation failes! Please check user details & try again." });
+                return StatusCode(500, new { Status = "Error", Message = $"User creation failes! {result.ToString()}" });
 
             if (await _roleManager.RoleExistsAsync(UserRole.User))
                 await _roleManager.CreateAsync(new IdentityRole(UserRole.User));
