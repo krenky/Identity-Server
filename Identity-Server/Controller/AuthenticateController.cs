@@ -50,7 +50,12 @@ namespace Identity_Server.Controller
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return StatusCode(500, new { Status = "Error", Message = $"User creation failes! {result.ToString()}" });
+            {
+                var errors = new List<string>();
+                foreach (var error in result.Errors)
+                    errors.Add(error.Description);
+                return StatusCode(500, new { Status = "Error", Message = $"User creation failes! {string.Join(", ", errors)}" });
+            }
             return Ok(new { Status = "Success", Message = "User created successfully" });
         }
         /// <summary>
@@ -74,8 +79,12 @@ namespace Identity_Server.Controller
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return StatusCode(500, new { Status = "Error", Message = $"User creation failes! {result.ToString()}" });
-
+            {
+                var errors = new List<string>();
+                foreach (var error in result.Errors)
+                    errors.Add(error.Description);
+                return StatusCode(500, new { Status = "Error", Message = $"User creation failes! {string.Join(", ", errors)}" });
+            }
             if (await _roleManager.RoleExistsAsync(UserRole.User))
                 await _roleManager.CreateAsync(new IdentityRole(UserRole.User));
 
@@ -132,6 +141,29 @@ namespace Identity_Server.Controller
         public async Task<string> CheckLogin()
         {
             return HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+        }
+        
+        [HttpPost]
+        [Route("change-password")]
+        public async Task<ActionResult> ChangePassword([FromBody]ChangePassword model)
+        {
+            var user = await _userManager.FindByNameAsync(model.Name);
+            if (user == null)
+                return NotFound(model.Name);
+
+            if (string.Compare(model.NewPassword, model.ConfirmNewPassword) != 0)
+                return BadRequest("The new password and confirm new password does not match");
+
+            var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+            if (result != null)
+            {
+                var errors = new List<string>();
+                foreach (var error in result.Errors)
+                    errors.Add(error.Description);
+                return StatusCode(500, new { Status = "Error", Message = $"User creation failes! {string.Join(", ", errors)}" });
+            }
+
+            return Ok(result);
         }
     }
 }
