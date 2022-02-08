@@ -76,11 +76,11 @@ namespace Identity_Server.Controller
             if (!result.Succeeded)
                 return StatusCode(500, new { Status = "Error", Message = "User creation failes! Please check user details & try again." });
 
-            if (await _roleManager.RoleExistsAsync(Role.User))
-                await _roleManager.CreateAsync(new IdentityRole(Role.User));
+            if (await _roleManager.RoleExistsAsync(UserRole.User))
+                await _roleManager.CreateAsync(new IdentityRole(UserRole.User));
 
-            if (await _roleManager.RoleExistsAsync(Role.Admin))
-                await _userManager.AddToRoleAsync(user, Role.Admin);
+            if (await _roleManager.RoleExistsAsync(UserRole.Admin))
+                await _userManager.AddToRoleAsync(user, UserRole.Admin);
 
             return Ok(new { Status = "Success", Message = "User created successfully" });
         }

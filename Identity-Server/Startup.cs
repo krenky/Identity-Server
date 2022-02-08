@@ -110,10 +110,12 @@ namespace Identity_Server
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
+                if(env.IsDevelopment())
+                    endpoints.MapGet("/", async context =>
+                    {
+                        await context.Response.WriteAsync("Hello World!");
+                    });
+                endpoints.MapControllers();
             });
         }
     }
